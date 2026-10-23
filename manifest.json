@@ -1,7 +1,7 @@
 {
 	"id": "sigilizer",
 	"name": "Sigilizer",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"minAppVersion": "1.13.0",
 	"description": "Turn intentions into sigils inscribed in a magic circle, and export them as PNGs.",
 	"author": "Adam Esch",
