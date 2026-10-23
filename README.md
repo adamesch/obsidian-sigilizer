@@ -18,11 +18,11 @@ The intention is reduced to a sigil string: letters only, no vowels (`y` counts 
 
 Click into the block to see and edit the original intention. Move the cursor away to see the sigil.
 
-**Save PNG** writes `Sigils/sigil-mprdctv.png` to your vault and copies `![[sigil-mprdctv.png]]` to the clipboard.
+**Save PNG** writes `Sigils/sigil-mprdctv.png` to your vault. Turn on **Copy embed link** in settings to also copy `![[sigil-mprdctv.png]]` to the clipboard.
 
 ## Settings
 
-Output folder, PNG size, line and background colors, transparent background, stroke width, double ring, rotated letters, and whether to show the sigil string under the circle.
+Output folder, PNG size, line and background colors, transparent background, copying the embed link after saving, stroke width, double ring, rotated letters, and whether to show the sigil string under the circle.
 
 ## Development
 

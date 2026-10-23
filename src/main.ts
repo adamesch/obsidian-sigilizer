@@ -44,9 +44,13 @@ export default class SigilizerPlugin extends Plugin {
 		try {
 			const data = await svgToPng(svg, this.settings);
 			const file = await savePng(this.app, sigil, data, this.settings.outputFolder);
-			const embed = `![[${file.name}]]`;
-			await navigator.clipboard.writeText(embed).catch(() => {});
-			new Notice(`Saved ${file.path}\nCopied ${embed} to clipboard`);
+			if (this.settings.copyEmbedOnSave) {
+				const embed = `![[${file.name}]]`;
+				await navigator.clipboard.writeText(embed).catch(() => {});
+				new Notice(`Saved ${file.path}\nCopied ${embed} to clipboard`);
+			} else {
+				new Notice(`Saved ${file.path}`);
+			}
 		} catch (e) {
 			console.error("Sigilizer:", e);
 			new Notice(`Sigilizer: could not save PNG (${e instanceof Error ? e.message : String(e)})`);

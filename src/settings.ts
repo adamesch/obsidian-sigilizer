@@ -9,6 +9,7 @@ export interface SigilizerSettings {
 	strokeColor: string;
 	backgroundColor: string;
 	transparentBackground: boolean;
+	copyEmbedOnSave: boolean;
 	showSigilString: boolean;
 	doubleRing: boolean;
 	rotateLetters: boolean;
@@ -21,6 +22,7 @@ export const DEFAULT_SETTINGS: SigilizerSettings = {
 	strokeColor: "",
 	backgroundColor: "#ffffff",
 	transparentBackground: false,
+	copyEmbedOnSave: false,
 	showSigilString: false,
 	doubleRing: true,
 	rotateLetters: false,
@@ -110,6 +112,12 @@ export class SigilizerSettingTab extends PluginSettingTab {
 					{
 						name: "Transparent background",
 						control: { type: "toggle", key: "transparentBackground" },
+					},
+					{
+						name: "Copy embed link",
+						desc: "After saving, copy the image's embed link (e.g. ![[sigil-mprdctv.png]]) to the clipboard.",
+						aliases: ["clipboard"],
+						control: { type: "toggle", key: "copyEmbedOnSave" },
 					},
 				],
 			},
