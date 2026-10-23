@@ -1,0 +1,27 @@
+.sigilizer-block {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--size-4-2);
+	padding: var(--size-4-3) 0;
+}
+
+.sigilizer-svg {
+	width: min(100%, 360px);
+	height: auto;
+	color: var(--text-normal);
+}
+
+.sigilizer-string {
+	font-family: var(--font-monospace);
+	letter-spacing: 0.2em;
+	color: var(--text-muted);
+}
+
+.sigilizer-error {
+	color: var(--text-error);
+}
+
+.sigilizer-save {
+	align-self: flex-end;
+}
