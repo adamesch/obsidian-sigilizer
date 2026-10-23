@@ -2,6 +2,8 @@
 
 An Obsidian plugin that turns intentions into sigils inscribed in a magic circle, with PNG export.
 
+![A sigil drawn in a note, with the Save PNG button below it](https://raw.githubusercontent.com/adamesch/obsidian-sigilizer/main/docs/screenshot.png)
+
 ## Usage
 
 Write your intention in a `sigil` code block:
