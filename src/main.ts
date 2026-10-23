@@ -32,27 +32,32 @@ export default class SigilizerPlugin extends Plugin {
 			}
 
 			const button = block.createEl("button", { cls: "sigilizer-save", text: "Save PNG" });
-			button.addEventListener("click", async (evt) => {
+			button.addEventListener("click", (evt) => {
 				evt.stopPropagation();
-				button.disabled = true;
-				try {
-					const data = await svgToPng(svg, this.settings);
-					const file = await savePng(this.app, sigil, data, this.settings.outputFolder);
-					const embed = `![[${file.name}]]`;
-					await navigator.clipboard.writeText(embed).catch(() => {});
-					new Notice(`Saved ${file.path}\nCopied ${embed} to clipboard`);
-				} catch (e) {
-					console.error("Sigilizer:", e);
-					new Notice(`Sigilizer: could not save PNG (${(e as Error).message})`);
-				} finally {
-					button.disabled = false;
-				}
+				void this.exportSigil(svg, sigil, button);
 			});
 		});
 	}
 
+	private async exportSigil(svg: SVGSVGElement, sigil: string, button: HTMLButtonElement) {
+		button.disabled = true;
+		try {
+			const data = await svgToPng(svg, this.settings);
+			const file = await savePng(this.app, sigil, data, this.settings.outputFolder);
+			const embed = `![[${file.name}]]`;
+			await navigator.clipboard.writeText(embed).catch(() => {});
+			new Notice(`Saved ${file.path}\nCopied ${embed} to clipboard`);
+		} catch (e) {
+			console.error("Sigilizer:", e);
+			new Notice(`Sigilizer: could not save PNG (${e instanceof Error ? e.message : String(e)})`);
+		} finally {
+			button.disabled = false;
+		}
+	}
+
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		const saved = (await this.loadData()) as Partial<SigilizerSettings> | null;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, saved);
 	}
 
 	async saveSettings() {

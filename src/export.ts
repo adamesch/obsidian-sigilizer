@@ -10,11 +10,9 @@ export async function svgToPng(svg: SVGSVGElement, settings: SigilizerSettings):
 	clone.setAttribute("height", String(size));
 	const color = settings.strokeColor || "#000000";
 	if (!settings.transparentBackground) {
-		const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-		bg.setAttribute("width", String(VIEW));
-		bg.setAttribute("height", String(VIEW));
-		bg.setAttribute("fill", settings.backgroundColor);
-		bg.setAttribute("stroke", "none");
+		const bg = createSvg("rect", {
+			attr: { width: VIEW, height: VIEW, fill: settings.backgroundColor, stroke: "none" },
+		});
 		clone.insertBefore(bg, clone.firstChild);
 	}
 
@@ -28,9 +26,7 @@ export async function svgToPng(svg: SVGSVGElement, settings: SigilizerSettings):
 			img.onerror = () => reject(new Error("Could not load sigil SVG"));
 			img.src = url;
 		});
-		const canvas = document.createElement("canvas");
-		canvas.width = size;
-		canvas.height = size;
+		const canvas = createEl("canvas", { attr: { width: size, height: size } });
 		const ctx = canvas.getContext("2d");
 		if (!ctx) throw new Error("Canvas is not available");
 		ctx.drawImage(img, 0, 0, size, size);

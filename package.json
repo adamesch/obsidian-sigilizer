@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-sigilizer",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Turn intentions into sigils inscribed in a magic circle, and export them as PNGs.",
 	"main": "main.js",
 	"type": "module",

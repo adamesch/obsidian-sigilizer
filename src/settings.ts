@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, PluginSettingTab, SettingDefinitionItem } from "obsidian";
 import type SigilizerPlugin from "./main";
 
 export interface SigilizerSettings {
@@ -26,91 +26,93 @@ export const DEFAULT_SETTINGS: SigilizerSettings = {
 	rotateLetters: false,
 };
 
+type Key = keyof SigilizerSettings;
+
 export class SigilizerSettingTab extends PluginSettingTab {
 	constructor(app: App, private plugin: SigilizerPlugin) {
 		super(app, plugin);
 	}
 
-	display(): void {
-		const { containerEl } = this;
+	getSettingDefinitions(): SettingDefinitionItem<Key>[] {
 		const settings = this.plugin.settings;
-		const save = () => this.plugin.saveSettings();
-		containerEl.empty();
-
-		containerEl.createEl("p", {
-			text: "Changes apply to sigils the next time a note is rendered.",
-			cls: "setting-item-description",
-		});
-
-		new Setting(containerEl).setHeading().setName("Drawing");
-
-		new Setting(containerEl)
-			.setName("Stroke width")
-			.setDesc("Thickness of the sigil line.")
-			.addSlider((s) =>
-				s.setLimits(0.5, 6, 0.5).setValue(settings.strokeWidth).setDynamicTooltip()
-					.onChange(async (v) => { settings.strokeWidth = v; await save(); }));
-
-		new Setting(containerEl)
-			.setName("Double ring")
-			.setDesc("Draw an inner ring so the letters sit between two circles.")
-			.addToggle((t) =>
-				t.setValue(settings.doubleRing)
-					.onChange(async (v) => { settings.doubleRing = v; await save(); }));
-
-		new Setting(containerEl)
-			.setName("Line color")
-			.setDesc("Color of the circle, letters and sigil, in notes and PNGs. Reset to follow the theme's text color (black in PNGs).")
-			.addColorPicker((c) =>
-				c.setValue(settings.strokeColor || "#000000")
-					.onChange(async (v) => { settings.strokeColor = v; await save(); }))
-			.addExtraButton((b) =>
-				b.setIcon("rotate-ccw").setTooltip("Follow theme")
-					.onClick(async () => { settings.strokeColor = ""; await save(); this.display(); }));
-
-		new Setting(containerEl)
-			.setName("Rotate letters")
-			.setDesc("Turn each letter to face the center instead of standing upright.")
-			.addToggle((t) =>
-				t.setValue(settings.rotateLetters)
-					.onChange(async (v) => { settings.rotateLetters = v; await save(); }));
-
-		new Setting(containerEl)
-			.setName("Show sigil string")
-			.setDesc("Show the reduced string (e.g. mprdctv) under the circle in notes.")
-			.addToggle((t) =>
-				t.setValue(settings.showSigilString)
-					.onChange(async (v) => { settings.showSigilString = v; await save(); }));
-
-		new Setting(containerEl).setHeading().setName("PNG export");
-
-		new Setting(containerEl)
-			.setName("Output folder")
-			.setDesc("Vault folder where PNGs are saved.")
-			.addText((t) =>
-				t.setPlaceholder("Sigils").setValue(settings.outputFolder)
-					.onChange(async (v) => { settings.outputFolder = v.trim() || DEFAULT_SETTINGS.outputFolder; await save(); }));
-
-		new Setting(containerEl)
-			.setName("Size")
-			.setDesc("Width and height of the PNG in pixels.")
-			.addText((t) =>
-				t.setValue(String(settings.pngSize))
-					.onChange(async (v) => {
-						const n = parseInt(v, 10);
-						if (n >= 64 && n <= 8192) { settings.pngSize = n; await save(); }
-					}));
-
-		new Setting(containerEl)
-			.setName("Background color")
-			.addColorPicker((c) =>
-				c.setValue(settings.backgroundColor)
-					.onChange(async (v) => { settings.backgroundColor = v; await save(); }));
-
-		new Setting(containerEl)
-			.setName("Transparent background")
-			.addToggle((t) =>
-				t.setValue(settings.transparentBackground)
-					.onChange(async (v) => { settings.transparentBackground = v; await save(); }));
+		return [
+			{
+				type: "group",
+				heading: "Drawing",
+				items: [
+					{
+						name: "Line color",
+						desc: "Color of the circle, letters and sigil, in notes and PNGs. Reset to follow the theme's text color (black in PNGs).",
+						aliases: ["stroke color"],
+						// A render item, since an empty value ("follow theme") isn't a valid color control value.
+						render: (setting) => {
+							setting
+								.addColorPicker((c) =>
+									c.setValue(settings.strokeColor || "#000000")
+										.onChange(async (v) => { settings.strokeColor = v; await this.plugin.saveSettings(); }))
+								.addExtraButton((b) =>
+									b.setIcon("rotate-ccw").setTooltip("Follow theme")
+										.onClick(async () => { settings.strokeColor = ""; await this.plugin.saveSettings(); this.update(); }));
+						},
+					},
+					{
+						name: "Stroke width",
+						desc: "Thickness of the sigil line.",
+						control: { type: "slider", key: "strokeWidth", min: 0.5, max: 6, step: 0.5 },
+					},
+					{
+						name: "Double ring",
+						desc: "Draw an inner ring so the letters sit between two circles.",
+						control: { type: "toggle", key: "doubleRing" },
+					},
+					{
+						name: "Rotate letters",
+						desc: "Turn each letter to face the center instead of standing upright.",
+						control: { type: "toggle", key: "rotateLetters" },
+					},
+					{
+						name: "Show sigil string",
+						desc: "Show the reduced string (e.g. mprdctv) under the circle in notes.",
+						control: { type: "toggle", key: "showSigilString" },
+					},
+				],
+			},
+			{
+				type: "group",
+				heading: "PNG export",
+				items: [
+					{
+						name: "Output folder",
+						desc: "Vault folder where PNGs are saved.",
+						control: {
+							type: "folder",
+							key: "outputFolder",
+							placeholder: DEFAULT_SETTINGS.outputFolder,
+							validate: (v) => (v.trim() ? undefined : "Choose a folder."),
+						},
+					},
+					{
+						name: "Size",
+						desc: "Width and height of the PNG in pixels.",
+						control: {
+							type: "number",
+							key: "pngSize",
+							min: 64,
+							max: 8192,
+							step: 1,
+							validate: (v) => (v >= 64 && v <= 8192 ? undefined : "Use a size from 64 to 8192."),
+						},
+					},
+					{
+						name: "Background color",
+						control: { type: "color", key: "backgroundColor" },
+					},
+					{
+						name: "Transparent background",
+						control: { type: "toggle", key: "transparentBackground" },
+					},
+				],
+			},
+		];
 	}
 }
